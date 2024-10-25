@@ -1,5 +1,6 @@
-from flask import Flask, jsonify, render_template_string
+from flask import Flask, jsonify, render_template_string, request
 import random
+import os
 
 app = Flask(__name__)
 
@@ -20,7 +21,7 @@ def status():
 @app.route('/repair-bay', methods=['GET'])
 def repair_bay():
     damaged_system = request.args.get('damaged_system')
-    code = systems.get(damaged_system)
+    code = systems.get(damaged_system, "Unknown system")
     
     html_content = f'''
     <!DOCTYPE html>
@@ -41,4 +42,4 @@ def teapot():
     return '', 418
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
