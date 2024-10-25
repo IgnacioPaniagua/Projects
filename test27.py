@@ -1,52 +1,36 @@
-from flask import Flask, jsonify, render_template_string
-import random
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
-# Posibles sistemas dañados
-systems = ["navigation", "communications", "life_support", "engines", "deflector_shield"]
-# Códigos de los sistemas
-system_codes = {
-    "navigation": "NAV-01",
-    "communications": "COM-02",
-    "life_support": "LIFE-03",
-    "engines": "ENG-04",
-    "deflector_shield": "SHLD-05"
-}
+# Datos críticos
+critical_pressure = 10  # MPa
+critical_volume_liquid = 0.0035  # m3/kg
+critical_volume_vapor = 0.0035  # m3/kg
 
-# Variable global para almacenar el sistema dañado
-damaged_system = None
-
-@app.route('/status', methods=['GET'])
-def status():
-    global damaged_system
-    damaged_system = random.choice(systems)
-    return jsonify({"damaged_system": damaged_system})
-
-@app.route('/repair-bay', methods=['GET'])
-def repair_bay():
-    if damaged_system is None:
-        return jsonify({"error": "No damaged system found. Please call /status first."}), 400
-
-    system_code = system_codes[damaged_system]
+# Volúmenes específicos para distintas presiones (simplificado)
+def get_specific_volumes(pressure):
+    if pressure < critical_pressure:
+        specific_volume_liquid = 0.00105 + (critical_volume_liquid - 0.00105) * (pressure / critical_pressure)
+        specific_volume_vapor = specific_volume_liquid + (critical_volume_vapor - specific_volume_liquid) * (pressure / critical_pressure)
+    else:
+        specific_volume_liquid = critical_volume_liquid
+        specific_volume_vapor = critical_volume_vapor
     
-    html_content = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Repair</title>
-    </head>
-    <body>
-    <div class="anchor-point">{system_code}</div>
-    </body>
-    </html>
-    """
-    
-    return render_template_string(html_content)
+    return specific_volume_liquid, specific_volume_vapor
 
-@app.route('/teapot', methods=['POST'])
-def teapot():
-    return '', 418  # Retornar el código 418
+@app.route('/phase-change-diagram', methods=['GET'])
+def phase_change_diagram():
+    pressure = float(request.args.get('pressure'))
+    
+    if pressure < 0 or pressure > 30:
+        return jsonify({"error": "Pressure out of bounds"}), 400
+    
+    specific_volume_liquid, specific_volume_vapor = get_specific_volumes(pressure)
+    
+    return jsonify({
+        "specific_volume_liquid": specific_volume_liquid,
+        "specific_volume_vapor": specific_volume_vapor
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
