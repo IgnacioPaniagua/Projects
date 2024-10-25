@@ -3,8 +3,9 @@ import random
 
 app = Flask(__name__)
 
-# Sistemas y códigos
+# Posibles sistemas dañados
 systems = ["navigation", "communications", "life_support", "engines", "deflector_shield"]
+# Códigos de los sistemas
 system_codes = {
     "navigation": "NAV-01",
     "communications": "COM-02",
@@ -13,21 +14,21 @@ system_codes = {
     "deflector_shield": "SHLD-05"
 }
 
-# Variable global para guardar el sistema dañado
-current_damaged_system = None
+# Variable global para almacenar el sistema dañado
+damaged_system = None
 
 @app.route('/status', methods=['GET'])
 def status():
-    global current_damaged_system
-    current_damaged_system = random.choice(systems)  # Elegir un sistema dañado al azar
-    return jsonify({"damaged_system": current_damaged_system})
+    global damaged_system
+    damaged_system = random.choice(systems)
+    return jsonify({"damaged_system": damaged_system})
 
 @app.route('/repair-bay', methods=['GET'])
 def repair_bay():
-    if current_damaged_system is None:
+    if damaged_system is None:
         return jsonify({"error": "No damaged system found. Please call /status first."}), 400
-    
-    system_code = system_codes[current_damaged_system]
+
+    system_code = system_codes[damaged_system]
     
     html_content = f"""
     <!DOCTYPE html>
