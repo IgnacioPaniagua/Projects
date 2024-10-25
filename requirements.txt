@@ -1,1 +1,1 @@
-Flask==x.x.x
+Flask==2.3.3
