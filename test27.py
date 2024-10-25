@@ -1,11 +1,11 @@
-from flask import Flask, jsonify, render_template_string, request
+from flask import Flask, jsonify, render_template_string
 import random
-import os
 
 app = Flask(__name__)
 
-# Definición de los sistemas y códigos
-systems = {
+# Sistemas y códigos
+systems = ["navigation", "communications", "life_support", "engines", "deflector_shield"]
+system_codes = {
     "navigation": "NAV-01",
     "communications": "COM-02",
     "life_support": "LIFE-03",
@@ -13,40 +13,39 @@ systems = {
     "deflector_shield": "SHLD-05"
 }
 
+# Variable global para guardar el sistema dañado
+current_damaged_system = None
+
 @app.route('/status', methods=['GET'])
 def status():
-    damaged_system = random.choice(list(systems.keys()))
-    return jsonify({"damaged_system": damaged_system})
+    global current_damaged_system
+    current_damaged_system = random.choice(systems)  # Elegir un sistema dañado al azar
+    return jsonify({"damaged_system": current_damaged_system})
 
 @app.route('/repair-bay', methods=['GET'])
 def repair_bay():
-    # Aquí tomamos el sistema dañado de los parámetros de la solicitud
-    damaged_system = request.args.get('damaged_system')
+    if current_damaged_system is None:
+        return jsonify({"error": "No damaged system found. Please call /status first."}), 400
     
-    # Verificamos si el sistema está en nuestro diccionario
-    if damaged_system in systems:
-        code = systems[damaged_system]
-    else:
-        code = "Unknown system"
+    system_code = system_codes[current_damaged_system]
     
-    # Generamos el HTML
-    html_content = f'''
+    html_content = f"""
     <!DOCTYPE html>
     <html>
     <head>
         <title>Repair</title>
     </head>
     <body>
-    <div class="anchor-point">{code}</div>
+    <div class="anchor-point">{system_code}</div>
     </body>
     </html>
-    '''
+    """
     
     return render_template_string(html_content)
 
 @app.route('/teapot', methods=['POST'])
 def teapot():
-    return '', 418
+    return '', 418  # Retornar el código 418
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
+    app.run(host='0.0.0.0', port=5000)
