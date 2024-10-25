@@ -20,9 +20,16 @@ def status():
 
 @app.route('/repair-bay', methods=['GET'])
 def repair_bay():
+    # Aquí tomamos el sistema dañado de los parámetros de la solicitud
     damaged_system = request.args.get('damaged_system')
-    code = systems.get(damaged_system, "Unknown system")
     
+    # Verificamos si el sistema está en nuestro diccionario
+    if damaged_system in systems:
+        code = systems[damaged_system]
+    else:
+        code = "Unknown system"
+    
+    # Generamos el HTML
     html_content = f'''
     <!DOCTYPE html>
     <html>
