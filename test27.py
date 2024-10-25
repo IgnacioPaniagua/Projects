@@ -11,11 +11,14 @@ critical_volume_vapor = 0.0035  # m3/kg
 def get_specific_volumes(pressure):
     if pressure < critical_pressure:
         specific_volume_liquid = 0.00105 + (critical_volume_liquid - 0.00105) * (pressure / critical_pressure)
-        specific_volume_vapor = specific_volume_liquid + (critical_volume_vapor - specific_volume_liquid) * (pressure / critical_pressure)
-    else:
+        specific_volume_vapor = specific_volume_liquid + (0.0035 - specific_volume_liquid) * (pressure / critical_pressure)
+    elif pressure == critical_pressure:
         specific_volume_liquid = critical_volume_liquid
         specific_volume_vapor = critical_volume_vapor
-    
+    else:
+        specific_volume_liquid = critical_volume_liquid + (0.03 - critical_volume_liquid) * ((pressure - critical_pressure) / (30 - critical_pressure))
+        specific_volume_vapor = 0.03  # Valor arbitrario, ajústalo según tu lógica
+
     return specific_volume_liquid, specific_volume_vapor
 
 @app.route('/phase-change-diagram', methods=['GET'])
