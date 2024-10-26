@@ -7,20 +7,20 @@ critical_pressure = 10  # MPa
 critical_volume_liquid = 0.0035  # m3/kg
 critical_volume_vapor = 0.0035  # m3/kg
 
-# Volúmenes específicos para distintas presiones (simplificado)
+# Volúmenes específicos para distintas presiones
 def get_specific_volumes(pressure):
     if pressure < 0.5:  # Línea de líquido baja antes de 0.00105
-        specific_volume_liquid = 0.00105 * (pressure / 0.5)  # Ajustar para que baje
-        specific_volume_vapor = specific_volume_liquid + 0.002  # Lógica simplificada
+        specific_volume_liquid = 0.00105 * (pressure / 0.5)  # Ajuste simplificado
+        specific_volume_vapor = specific_volume_liquid + 0.002  # Ajuste simplificado
     elif pressure < critical_pressure:  # Línea de líquido saturado
         specific_volume_liquid = 0.00105 + (critical_volume_liquid - 0.00105) * (pressure / critical_pressure)
         specific_volume_vapor = specific_volume_liquid + (critical_volume_vapor - specific_volume_liquid) * (pressure / critical_pressure)
     elif pressure == critical_pressure:  # Punto crítico
         specific_volume_liquid = critical_volume_liquid
         specific_volume_vapor = critical_volume_vapor
-    else:  # Después del punto crítico
-        specific_volume_liquid = critical_volume_liquid + (30 - critical_volume_liquid) * ((pressure - critical_pressure) / (30 - critical_pressure))
-        specific_volume_vapor = 30 - (30 - critical_volume_vapor) * ((pressure - critical_pressure) / (30 - critical_pressure))
+    else:  # Después del punto crítico, mantener constante
+        specific_volume_liquid = critical_volume_liquid
+        specific_volume_vapor = critical_volume_vapor
 
     return specific_volume_liquid, specific_volume_vapor
 
