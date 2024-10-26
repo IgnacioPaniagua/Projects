@@ -13,11 +13,11 @@ def get_specific_volumes(pressure):
         specific_volume_liquid = 0.00105
         specific_volume_vapor = 30  # Valor representativo
     elif 0.5 <= pressure < critical_pressure:  # Línea de líquido saturado
-        specific_volume_liquid = 0.00105 + (critical_volume_liquid - 0.00105) * ((pressure - 0.5) / (9.5))  # Rango de 0.5 a 10 MPa
-        specific_volume_vapor = critical_volume_liquid + (critical_volume_vapor - critical_volume_liquid) * ((pressure - 0.5) / (9.5))  # Asumiendo que el vapor va subiendo
+        specific_volume_liquid = 0.00105 + (critical_volume_liquid - 0.00105) * ((pressure - 0.5) / (9.5))  # Interpolación
+        specific_volume_vapor = critical_volume_vapor - (critical_volume_vapor - specific_volume_liquid) * ((pressure - 0.5) / (9.5))  # Decrece
     elif pressure == critical_pressure:  # En el punto crítico
         specific_volume_liquid = critical_volume_liquid
-        specific_volume_vapor = critical_volume_liquid
+        specific_volume_vapor = critical_volume_vapor
     elif critical_pressure < pressure <= 30:  # Línea de vapor saturado
         specific_volume_liquid = critical_volume_liquid  # Se mantiene constante
         specific_volume_vapor = critical_volume_vapor - (pressure - critical_pressure) * (critical_volume_vapor - 0.05) / (30 - critical_pressure)  # Decrece linealmente
