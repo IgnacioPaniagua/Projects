@@ -9,20 +9,18 @@ critical_volume_vapor = 0.0035  # m3/kg
 
 # Volúmenes específicos para distintas presiones
 def get_specific_volumes(pressure):
-    if pressure < 0.5:  # Línea de líquido baja antes de 0.00105
-        specific_volume_liquid = 0.00105 * (pressure / 0.5)  # Ajuste simplificado
-        specific_volume_vapor = specific_volume_liquid + 0.002  # Ajuste simplificado
-    elif pressure < critical_pressure:  # Línea de líquido saturado
-        specific_volume_liquid = 0.00105 + (critical_volume_liquid - 0.00105) * (pressure / critical_pressure)
-        specific_volume_vapor = specific_volume_liquid + (critical_volume_vapor - specific_volume_liquid) * (pressure / critical_pressure)
-    elif pressure == critical_pressure:  # Punto crítico
+    if pressure < critical_pressure:
+        specific_volume_liquid = 0.00105 + (0.0035 - 0.00105) * (pressure / critical_pressure)
+        specific_volume_vapor = specific_volume_liquid + (0.0035 - specific_volume_liquid) * (pressure / critical_pressure)
+    elif pressure == critical_pressure:
         specific_volume_liquid = critical_volume_liquid
         specific_volume_vapor = critical_volume_vapor
-    else:  # Después del punto crítico, mantener constante
-        specific_volume_liquid = critical_volume_liquid
-        specific_volume_vapor = critical_volume_vapor
+    else:
+        specific_volume_liquid = 0.0035  # O un valor bajo fijo
+        specific_volume_vapor = 0.0035 + (pressure - critical_pressure) * (0.0015 / 20)  # Ajusta esto según tu rango
 
     return specific_volume_liquid, specific_volume_vapor
+
 
 @app.route('/phase-change-diagram', methods=['GET'])
 def phase_change_diagram():
